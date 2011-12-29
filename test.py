@@ -70,7 +70,7 @@ if __name__ == '__main__':
         if fixture != lastFixture:
             print()
             print(fixture)
-            print('-' * max(80, len(fixture)))
+            print('-' * max(79, len(fixture)))
             lastFixture = fixture
             putNewlineBefore = False
 
