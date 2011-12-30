@@ -1,7 +1,6 @@
 #! /usr/bin/python3
 
 import glob
-import os
 import os.path
 import xml.dom
 import xml.dom.minidom
@@ -59,14 +58,25 @@ def yellow(message):
     return color(message, '0;33')
 
 if __name__ == '__main__':
+    import os
+    import shutil
+    import sys
+
+    reportDirectory = 'target/surefire-reports'
+    # If the compile fails, we don't want to look at old test reports.
+    if os.path.exists(reportDirectory):
+        shutil.rmtree(reportDirectory)
     os.system('mvn test')
+    if not os.path.exists(reportDirectory):
+        sys.exit()
+
     print()
     print()
 
     lastFixture = ''
     noFailures = True
     putNewlineBefore = False
-    for test, fixture, problem, cause in failedTests('target/surefire-reports'):
+    for test, fixture, problem, cause in failedTests(reportDirectory):
         if fixture != lastFixture:
             print()
             print(fixture)
