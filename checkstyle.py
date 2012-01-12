@@ -2,6 +2,7 @@
 
 import xml.dom
 import xml.dom.minidom
+import out
 
 def childNamed(node, targetName):
     for kid in node.childNodes:
@@ -18,15 +19,6 @@ def checkstyleProblems(reportFilename):
         err = error(srcFile)
         if err is not None:
             yield srcFile.getAttribute('name'), err.getAttribute('line'), err.getAttribute('message')
-
-def color(message, color):
-    return '\033[' + color + 'm' + message + '\033[0m'
-
-def red(message):
-    return color(message, '0;31')
-
-def green(message):
-    return color(message, '0;32')
 
 if __name__ == '__main__':
     import os
@@ -47,17 +39,11 @@ if __name__ == '__main__':
     noFailures = True
     for srcFile, line, message in checkstyleProblems(checkstyleFile):
         if srcFile != lastFile:
-            print()
-            print(os.path.relpath(srcFile))
-            print('-' * min(79, len(srcFile)))
+            out.printlns('', os.path.relpath(srcFile), '-' * 79);
             lastFile = srcFile
 
-        print(red(line), '-', end=' ')
-        print(message)
+        print(out.red(line), '-', message)
         noFailures = False
 
     if noFailures:
-        msg = 'CHECKSTYLE PASSED'
-        print('-' * len(msg))
-        print(green(msg))
-        print('-' * len(msg))
+        print(out.banner(out.green('CHECKSTYLE PASSED')))

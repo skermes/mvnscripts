@@ -4,6 +4,7 @@ import glob
 import os.path
 import xml.dom
 import xml.dom.minidom
+import out
 
 FAILED = 'fail'
 SKIPPED = 'skip'
@@ -45,18 +46,6 @@ def failedTests(reportFolder):
             if skip is not None:
                 yield test.getAttribute('name'), fixture, SKIPPED, None
 
-def color(message, color):
-    return '\033[' + color + 'm' + message + '\033[0m'
-
-def red(message):
-    return color(message, '0;31')
-
-def green(message):
-    return color(message, '0;32')
-
-def yellow(message):
-    return color(message, '0;33')
-
 if __name__ == '__main__':
     import os
     import shutil
@@ -78,26 +67,19 @@ if __name__ == '__main__':
     putNewlineBefore = False
     for test, fixture, problem, cause in failedTests(reportDirectory):
         if fixture != lastFixture:
-            print()
-            print(fixture)
-            print('-' * max(79, len(fixture)))
+            out.printlns('', fixture, '-' * 79)
             lastFixture = fixture
             putNewlineBefore = False
 
         if problem == FAILED:
             if putNewlineBefore:
                 print()
-            print(red(test))
-            print(cause)
-            print()
+            out.printlns(out.red(test), cause, '')
             noFailures = False;
             putNewlineBefore = False
         elif problem == SKIPPED:
-            print(yellow(test))
+            print(out.yellow(test))
             putNewlineBefore = True
 
     if noFailures:
-        msg = 'ALL TESTS SUCCESSFUL'
-        print('-' * len(msg))
-        print(green(msg))
-        print('-' * len(msg))
+        out.printlns('', out.banner(out.green('ALL TESTS SUCCESSFUL')))
