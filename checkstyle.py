@@ -4,21 +4,19 @@ import xml.dom
 import xml.dom.minidom
 import out
 
-def childNamed(node, targetName):
-    for kid in node.childNodes:
-        if kid.nodeType == xml.dom.Node.ELEMENT_NODE and kid.localName == targetName:
-            return kid
-    return None
+def childrenNamed(node, targetName):
+    return [kid for kid in node.childNodes if kid.nodeType == xml.dom.Node.ELEMENT_NODE and kid.localName == targetName]
 
-def error(fileNode):
-    return childNamed(fileNode, 'error')
+def errors(fileNode):
+    return childrenNamed(fileNode, 'error')
 
 def checkstyleProblems(reportFilename):
     report = xml.dom.minidom.parse(reportFilename)
     for srcFile in report.documentElement.getElementsByTagName('file'):
-        err = error(srcFile)
-        if err is not None:
-            yield srcFile.getAttribute('name'), err.getAttribute('line'), err.getAttribute('message')
+        errs = errors(srcFile)
+        if len(errs) > 0:
+            for err in errs:
+                yield srcFile.getAttribute('name'), err.getAttribute('line'), err.getAttribute('message')
 
 if __name__ == '__main__':
     import os
