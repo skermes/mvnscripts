@@ -6,10 +6,12 @@ if [ $# -ne 1 -a $# -ne 3 ]
     exit
 fi
 
+TARGET=$(readlink -en $1)
+
 if [ $# -eq 3 ]
   then
-    sudo cp $1 /usr/local/bin/$3
+    sudo ln -s $TARGET /usr/local/bin/$3
     exit
 fi
 
-sudo cp $1 /usr/local/bin/$1
+sudo ln -s $TARGET /usr/local/bin/$1
