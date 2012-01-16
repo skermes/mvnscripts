@@ -37,7 +37,7 @@ if __name__ == '__main__':
     noFailures = True
     for srcFile, line, message in checkstyleProblems(checkstyleFile):
         if srcFile != lastFile:
-            out.printlns('', os.path.relpath(srcFile), '-' * 79);
+            out.printlns('', os.path.relpath(srcFile), '-' * 79)
             lastFile = srcFile
 
         print(out.red(line), '-', message)
