@@ -3,6 +3,7 @@
 import xml.dom
 import xml.dom.minidom
 import out
+import os
 import os.path
 
 def text(tag):
@@ -22,21 +23,22 @@ def message(bug):
     msg = text(bug.getElementsByTagName('LongMessage')[0])
     return msg[:msg.rfind(' in ')]
 
-def bugsFound(reportFilename):
+def bugsFound(reportFilename='target/findbugsXml.xml'):
     report = xml.dom.minidom.parse(reportFilename)
     srcdir = text(report.documentElement.getElementsByTagName('SrcDir')[0])
     for bug in report.documentElement.getElementsByTagName('BugInstance'):
-        yield os.path.join(srcdir, fileName(bug)), lineNumber(bug), message(bug)
+        yield os.path.join(srcdir, fileName(bug)), int(lineNumber(bug)), message(bug)
 
-if __name__ == '__main__':
-    import os
-    import sys
-
-    findbugsFile = 'target/findbugsXml.xml'
+def runTarget(findbugsFile='target/findbugsXml.xml'):
     if os.path.exists(findbugsFile):
         os.remove(findbugsFile)
     os.system('mvn findbugs:findbugs')
-    if not os.path.exists(findbugsFile):
+    return os.path.exists(findbugsFile)
+
+if __name__ == '__main__':
+    import sys
+
+    if not runTarget():
         sys.exit()
 
     print()
@@ -44,11 +46,12 @@ if __name__ == '__main__':
 
     lastFile = ''
     noFailures = True
-    for srcFile, line, msg in bugsFound(findbugsFile):
+    for srcFile, line, msg in bugsFound():
         if srcFile != lastFile:
             out.printlns('', os.path.relpath(srcFile), '-' * 79)
             lastFile = srcFile
 
+        line = str(line)
         print(out.red(line), '-', msg)
         noFailures = False
 

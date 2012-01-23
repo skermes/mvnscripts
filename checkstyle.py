@@ -3,6 +3,8 @@
 import xml.dom
 import xml.dom.minidom
 import out
+import os
+import os.path
 
 def childrenNamed(node, targetName):
     return [kid for kid in node.childNodes if kid.nodeType == xml.dom.Node.ELEMENT_NODE and kid.localName == targetName]
@@ -10,24 +12,24 @@ def childrenNamed(node, targetName):
 def errors(fileNode):
     return childrenNamed(fileNode, 'error')
 
-def checkstyleProblems(reportFilename):
+def checkstyleProblems(reportFilename='target/checkstyle-result.xml'):
     report = xml.dom.minidom.parse(reportFilename)
     for srcFile in report.documentElement.getElementsByTagName('file'):
         errs = errors(srcFile)
         if len(errs) > 0:
             for err in errs:
-                yield srcFile.getAttribute('name'), err.getAttribute('line'), err.getAttribute('message')
+                yield srcFile.getAttribute('name'), int(err.getAttribute('line')), err.getAttribute('message')
 
-if __name__ == '__main__':
-    import os
-    import os.path
-    import sys
-
-    checkstyleFile = 'target/checkstyle-result.xml'
+def runTarget(checkstyleFile='target/checkstyle-result.xml'):
     if os.path.exists(checkstyleFile):
         os.remove(checkstyleFile)
     os.system('mvn checkstyle:checkstyle')
-    if not os.path.exists(checkstyleFile):
+    return os.path.exists(checkstyleFile)
+
+if __name__ == '__main__':
+    import sys
+
+    if not runTarget():
         sys.exit()
 
     print()
@@ -35,11 +37,12 @@ if __name__ == '__main__':
 
     lastFile = ''
     noFailures = True
-    for srcFile, line, message in checkstyleProblems(checkstyleFile):
+    for srcFile, line, message in checkstyleProblems():
         if srcFile != lastFile:
             out.printlns('', os.path.relpath(srcFile), '-' * 79)
             lastFile = srcFile
 
+        line = str(line)
         print(out.red(line), '-', message)
         noFailures = False
 
