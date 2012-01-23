@@ -51,11 +51,15 @@ if __name__ == '__main__':
     import shutil
     import sys
 
+    target = 'mvn test'
+    if len(sys.argv) > 1:
+        target += ' -Dtest=' + sys.argv[1].replace('.', '#')
+
     reportDirectory = 'target/surefire-reports'
     # If the compile fails, we don't want to look at old test reports.
     if os.path.exists(reportDirectory):
         shutil.rmtree(reportDirectory)
-    os.system('mvn test')
+    os.system(target)
     if not os.path.exists(reportDirectory):
         sys.exit()
 
