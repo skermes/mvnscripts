@@ -31,10 +31,10 @@ if __name__ == '__main__':
     if not any([bugFound, styleChecked, pmdRan, dupChecked]):
         sys.exit()
 
-    problems = itertools.chain(findbugs.bugsFound(),
-                               checkstyle.checkstyleProblems(),
-                               pmd.pmdViolations(),
-                               cpd.duplications())
+    problems = itertools.chain(findbugs.bugsFound() if bugFound else [],
+                               checkstyle.checkstyleProblems() if styleChecked else [],
+                               pmd.pmdViolations() if pmdRan else [],
+                               cpd.duplications() if dupChecked else [])
 
     noProblems = True
     for srcFile, problemgroup in itertools.groupby(sorted(problems), lambda x: x[0]):
